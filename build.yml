@@ -1,0 +1,38 @@
+name: Build WebDriverAgent IPA
+
+on:
+  workflow_dispatch: # Запуск вручную по кнопке
+
+jobs:
+  build:
+    runs-on: macos-14 # Бесплатная macOS машина от GitHub
+
+    steps:
+      - name: Checkout WebDriverAgent
+        uses: actions/checkout@v4
+        with:
+          repository: 'appium/WebDriverAgent'
+          ref: 'master'
+
+      - name: Build WebDriverAgentRunner
+        run: |
+          mkdir -p build
+          xcodebuild build-for-testing \
+            -project WebDriverAgent.xcodeproj \
+            -scheme WebDriverAgentRunner \
+            -destination "generic/platform=iOS" \
+            -derivedDataPath ./derivedData \
+            CODE_SIGNING_ALLOWED=NO
+
+      - name: Package to IPA
+        run: |
+          mkdir -p Payload
+          # Копируем скомпилированное приложение в Payload
+          cp -r ./derivedData/Build/Products/Debug-iphoneos/WebDriverAgentRunner-Runner.app Payload/
+          zip -r WebDriverAgentRunner.ipa Payload
+          
+      - name: Upload IPA Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: WebDriverAgentRunner-ipa
+          path: WebDriverAgentRunner.ipa
