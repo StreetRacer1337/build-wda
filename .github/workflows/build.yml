@@ -24,12 +24,15 @@ jobs:
             -scheme WebDriverAgentRunner \
             -destination "generic/platform=iOS" \
             -derivedDataPath ./derivedData \
-            CODE_SIGNING_ALLOWED=NO
+            CODE_SIGNING_ALLOWED=NO \
+            DEBUG_INFORMATION_FORMAT=dwarf
 
-      - name: Package to IPA
+      - name: Package to Clean IPA
         run: |
           mkdir -p Payload
           cp -r ./derivedData/Build/Products/Debug-iphoneos/WebDriverAgentRunner-Runner.app Payload/
+          # Удаляем все dSYM и ненужные отладочные файлы, на которых спотыкается Sideloadly
+          find Payload -name "*.dSYM" -exec rm -rf {} + || true
           zip -r WebDriverAgentRunner.ipa Payload
           
       - name: Upload IPA Artifact
