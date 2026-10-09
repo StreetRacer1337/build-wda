@@ -1,11 +1,11 @@
 name: Build WebDriverAgent IPA
 
 on:
-  workflow_dispatch: # Запуск вручную по кнопке
+  workflow_dispatch:
 
 jobs:
   build:
-    runs-on: macos-14 # Бесплатная macOS машина от GitHub
+    runs-on: macos-14
 
     steps:
       - name: Checkout WebDriverAgent
@@ -27,7 +27,6 @@ jobs:
       - name: Package to IPA
         run: |
           mkdir -p Payload
-          # Копируем скомпилированное приложение в Payload
           cp -r ./derivedData/Build/Products/Debug-iphoneos/WebDriverAgentRunner-Runner.app Payload/
           zip -r WebDriverAgentRunner.ipa Payload
           
